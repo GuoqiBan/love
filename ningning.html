@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>❤ 柠柠 ❤</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #canvas {
+            background: black;
+        }
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #noBtn {
+            background: #ff6b6b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="modal">
+        <h2>亲爱的，原谅我好吗？</h2>
+        <button id="yesBtn">好哦</button>
+        <button id="noBtn" style="background: #ff6b6b; color: white;">不要</button>
+    </div>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let modal = document.querySelector('.modal');
+        
+        // 设置画布尺寸
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // 表白文字数组
+        const words = ["柠柠好可爱","一定要开心呀!","柠柠好御姐","对不起啦柠柠","我不该惹你生气的",
+                      "柠柠最好看啦","陪你到来生","春风十里不如你","三生有幸来日方长","柠柠美美美",
+                      "柠柠我错啦","等你下课","别不高兴啦","天籁之音","柠柠声音好好听啊","温柔而动听",
+                      "柠柠光芒万丈啊啊啊","Missing You!","你的温柔如春风拂面","你的美感令人陶醉",
+                      "你的妩媚让人难以忘怀","齿若编贝,巧笑倩兮,美目流盼","好喜欢你","一笑倾城, 再笑倾国",
+                      "手似柔荑,肤若凝脂,领如蝤蛴","你这该死的无处安放的魅力","为你着迷"];
+
+        // 动画对象池
+        const objects = [];
+        
+        class TextObject {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width * 2 - canvas.width;
+                this.y = Math.random() * canvas.height * 2 - canvas.height;
+                this.speed = Math.random() * 0.5 + 0.3; // 调整速度范围（原为2-5）
+                this.angle = Math.random() * Math.PI * 2;
+                this.text = words[Math.floor(Math.random() * words.length)];
+                this.color = `rgb(${Math.random()*255},${Math.random()*255},${Math.random()*255})`;
+                this.size = Math.random() * 10 + 15;
+            }
+            update() {
+                this.y += this.speed;
+                this.x += Math.sin(this.angle) * this.speed * 0.3; // 减小横向移动幅度
+                if (this.y > canvas.height + 50) this.reset();
+            }
+            draw() {
+                ctx.save();
+                ctx.font = `${this.size}px Comic Sans MS`;
+                ctx.fillStyle = this.color;
+                ctx.textAlign = 'center';
+                ctx.fillText(this.text, this.x, this.y);
+                ctx.restore();
+            }
+        }
+
+        class BallObject {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                 this.x = Math.random() * canvas.width * 2 - canvas.width;
+                this.y = Math.random() * canvas.height * 2 - canvas.height;
+                this.speed = Math.random() * 0.4 + 0.2; // 调整速度范围（原为2-7）
+                this.radius = Math.random() * 3 + 2;
+                this.color = `rgb(${Math.random()*255},${Math.random()*255},${Math.random()*255})`;
+            }
+            update() {
+                this.y += this.speed;
+                if (this.y > canvas.height + 50) this.reset();
+            }
+            draw() {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // 初始化对象池
+        function initObjects() {
+            for (let i = 0; i < 200; i++) {
+                objects.push(new TextObject());
+                objects.push(new BallObject());
+                objects.push(new BallObject());
+            }
+        }
+
+        // 动画循环
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            objects.forEach(obj => {
+                obj.update();
+                obj.draw();
+            });
+            
+            requestAnimationFrame(animate);
+        }
+
+        // 事件监听
+        document.getElementById('yesBtn').addEventListener('click', () => {
+            modal.style.display = 'none';
+            initObjects();
+            animate();
+        });
+
+        document.getElementById('noBtn').addEventListener('click', () => {
+            alert('再给你一次机会！');
+        });
+
+        // 阻止右键菜单
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
+        // 初始化
+        initObjects();
+        animate();
+    </script>
+</body>
+</html>
